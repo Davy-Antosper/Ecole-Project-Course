@@ -57,3 +57,143 @@ $user = getUser();
                     <div class="stat-label">Enseignants</div>
                 </div>
                 <div class="stat">
+                    <div class="stat-number"><?php 
+                        echo $pdo->query('SELECT COUNT(*) FROM classes')->fetchColumn();
+                    ?></div>
+                    <div class="stat-label">Classes</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number"><?php 
+                        echo $pdo->query('SELECT COUNT(*) FROM grades')->fetchColumn();
+                    ?></div>
+                    <div class="stat-label">Notes</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Gestion</h3>
+                <p>Panel d'administration en développement...</p>
+                <ul style="margin-top: 15px;">
+                    <li><a href="#">Gérer les utilisateurs</a></li>
+                    <li><a href="#">Gérer les classes</a></li>
+                    <li><a href="#">Gérer les matières</a></li>
+                </ul>
+            </div>
+        
+        <?php elseif ($user['role'] === 'teacher'): ?>
+            <div class="card">
+                <h3>Mes Classes</h3>
+                <table>
+                    <thead>
+                        <tr><th>Classe</th><th>Élèves</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $pdo = getPDO();
+                        $stmt = $pdo->query('
+                            SELECT c.name, COUNT(s.id) as count 
+                            FROM classes c 
+                            LEFT JOIN students s ON c.id = s.class_id 
+                            GROUP BY c.id
+                        ');
+                        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $class):
+                        ?>
+                            <tr>
+                                <td><?= escape($class['name']) ?></td>
+                                <td><?= $class['count'] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h3>Récents Devoirs</h3>
+                <table>
+                    <thead>
+                        <tr><th>Titre</th><th>Classe</th><th>Date limite</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $assignments = getAssignments();
+                        foreach (array_slice($assignments, 0, 5) as $a):
+                        ?>
+                            <tr>
+                                <td><?= escape($a['title']) ?></td>
+                                <td><?= escape($a['class']) ?></td>
+                                <td><?= $a['due_date'] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        
+        <?php elseif ($user['role'] === 'student'): ?>
+            <div class="grid">
+                <div class="stat">
+                    <div class="stat-number"><?php 
+                        $pdo = getPDO();
+                        $count = $pdo->prepare('SELECT COUNT(*) FROM grades WHERE student_id = (SELECT id FROM students WHERE user_id = ?)');
+                        $count->execute([$user['id']]);
+                        echo $count->fetchColumn();
+                    ?></div>
+                    <div class="stat-label">Notes reçues</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number"><?php 
+                        $avg = $pdo->prepare('SELECT AVG(score) as moyenne FROM grades WHERE student_id = (SELECT id FROM students WHERE user_id = ?)');
+                        $avg->execute([$user['id']]);
+                        $result = $avg->fetch(PDO::FETCH_ASSOC);
+                        echo $result['moyenne'] ? round($result['moyenne'], 1) : '-';
+                    ?></div>
+                    <div class="stat-label">Moyenne</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Mes Notes</h3>
+                <table>
+                    <thead>
+                        <tr><th>Devoir</th><th>Matière</th><th>Note</th><th>Commentaire</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $stmt = $pdo->prepare('
+                            SELECT g.score, g.appreciation, a.title, s.name 
+                            FROM grades g
+                            JOIN assignments a ON g.assignment_id = a.id
+                            JOIN subjects s ON a.subject_id = s.id
+                            WHERE g.student_id = (SELECT id FROM students WHERE user_id = ?)
+                            ORDER BY g.created_at DESC
+                        ');
+                        $stmt->execute([$user['id']]);
+                        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $grade):
+                        ?>
+                            <tr>
+                                <td><?= escape($grade['title']) ?></td>
+                                <td><?= escape($grade['name']) ?></td>
+                                <td><?= $grade['score'] ?? '-' ?>/20</td>
+                                <td><?= escape($grade['appreciation'] ?? '') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        
+        <?php elseif ($user['role'] === 'parent'): ?>
+            <div class="card">
+                <h3>Suivi des enfants</h3>
+                <p>Page parent en développement...</p>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
+
+// Added input validation
+
+// verification des entrees ajoutee
+
+// verification 
+
+// verification des entrees ajoutee
