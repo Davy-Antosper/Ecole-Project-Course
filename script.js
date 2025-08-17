@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Gestion de la session
     let lastActivity = Date.now();
-    const SESSION_TIMEOUT = 4 * 60 * 1000; // 30 minutes
+    const SESSION_TIMEOUT = 22 * 60 * 1000; // 30 minutes
     
     function updateActivity() {
         lastActivity = Date.now();
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (inactiveTime > SESSION_TIMEOUT) {
-            window.location.href = '/suivi-scolaire/logout.php?timeout=4';
+            window.location.href = '/suivi-scolaire/logout.php?timeout=22';
         }
     }
     
