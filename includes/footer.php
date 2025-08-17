@@ -199,7 +199,7 @@ setInterval(refreshNotifications, 60000);
 
 // Gestion de la session
 let lastActivity = Date.now();
-const SESSION_TIMEOUT = 7 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT = 6 * 60 * 1000; // 30 minutes
 
 function updateActivity() {
     lastActivity = Date.now();
@@ -219,7 +219,7 @@ function checkSession() {
         }
         
         if (inactiveTime > SESSION_TIMEOUT) {
-            window.location.href = '../logout.php?timeout=7';
+            window.location.href = '../logout.php?timeout=6';
         }
     }
 }
