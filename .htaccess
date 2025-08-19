@@ -1,0 +1,22 @@
+# Dans C:/xampp/htdocs/suivi-scolaire/.htaccess
+
+# Activer la réécriture d'URL
+RewriteEngine On
+
+# Rediriger vers index.php si le fichier/dossier n'existe pas
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Protéger les fichiers sensibles
+<FilesMatch "\.(sql|log|ini)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Désactiver l'affichage des dossiers
+Options -Indexes
+
+# Paramètres PHP
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
